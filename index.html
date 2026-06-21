@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CreatorApps — web apps built fast for creators. Portfolio of shipped tools and custom build services.">
+<meta property="og:title" content="CreatorApps">
+<meta property="og:description" content="Web apps built fast for creators. See what we've shipped. Hire us to build yours.">
+<meta property="og:type" content="website">
+<title>CreatorApps — Tools Built for Creators</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --bg3: #141420;
+    --card: #131320;
+    --card-hover: #1a1a2e;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --text: #f0eeff;
+    --text2: #9896b8;
+    --text3: #5e5c7a;
+    --accent: #7c5cfc;
+    --accent2: #c45cfc;
+    --accent3: #5cf4fc;
+    --glow: rgba(124,92,252,0.18);
+    --glow2: rgba(196,92,252,0.12);
+    --red: #fc5c8a;
+    --green: #5cfca8;
+    --yellow: #fcca5c;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NOISE OVERLAY ─────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── BG GRADIENTS ───────────────────────────────── */
+  .bg-glows {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-glows::before {
+    content: '';
+    position: absolute;
+    width: 800px; height: 800px;
+    top: -200px; left: -200px;
+    background: radial-gradient(circle, rgba(124,92,252,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .bg-glows::after {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    top: 30%; right: -150px;
+    background: radial-gradient(circle, rgba(196,92,252,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────── */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── NAV ─────────────────────────────────────────── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  nav .inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, var(--text2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+  }
+  .logo span {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--text2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff !important;
+    transition: opacity 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.88 !important; transform: translateY(-1px); }
+
+  /* ── HERO ────────────────────────────────────────── */
+  .hero {
+    padding: 120px 0 80px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,92,252,0.10);
+    border: 1px solid rgba(124,92,252,0.22);
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+  }
+  h1 {
+    font-size: clamp(40px, 7vw, 80px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--text2);
+    line-height: 1.6;
+    max-width: 540px;
+    margin: 0 auto 48px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 13px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: #fff;
+    box-shadow: 0 0 30px rgba(124,92,252,0.35);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(124,92,252,0.5);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border-hover);
+  }
+  .btn-ghost:hover {
+    background: var(--card);
+    color: var(--text);
+    transform: translateY(-2px);
+  }
+
+  /* ── STATS ───────────────────────────────────────── */
+  .stats {
+    padding: 24px 0 80px;
+  }
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .stat {
+    flex: 1;
+    padding: 28px 24px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    min-width: 0;
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--text2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--text3);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── SECTION HEADERS ─────────────────────────────── */
+  .section { padding: 80px 0; }
+  .section-head {
+    margin-bottom: 56px;
+  }
+  .section-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--text2);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  /* ── APP GRID ────────────────────────────────────── */
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .app-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: all 0.25s;
+    overflow: hidden;
+  }
+  .app-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--card-glow, transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: inherit;
+  }
+  .app-card:hover {
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+  .app-card:hover::before { opacity: 1; }
+  .app-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .app-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .app-meta { flex: 1; min-width: 0; }
+  .app-name {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .app-category {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .app-live-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: rgba(92,252,168,0.10);
+    color: var(--green);
+    border: 1px solid rgba(92,252,168,0.18);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .app-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .app-tech {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text3);
+    border: 1px solid var(--border);
+  }
+  .app-arrow {
+    color: var(--text3);
+    font-size: 16px;
+    transition: transform 0.2s, color 0.2s;
+  }
+  .app-card:hover .app-arrow {
+    transform: translateX(4px);
+    color: var(--accent);
+  }
+
+  /* App color themes */
+  .app-stellar .app-icon { background: rgba(124,92,252,0.15); }
+  .app-streakly .app-icon { background: rgba(252,202,92,0.12); }
+  .app-forge .app-icon { background: rgba(252,92,138,0.12); }
+  .app-astra .app-icon { background: rgba(92,244,252,0.10); }
+  .app-platemate .app-icon { background: rgba(92,252,168,0.10); }
+  .app-tended .app-icon { background: rgba(252,138,92,0.12); }
+  .app-stacks .app-icon { background: rgba(138,92,252,0.15); }
+  .app-cutlist .app-icon { background: rgba(252,92,92,0.10); }
+
+  .app-stellar { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(124,92,252,0.08), transparent); }
+  .app-streakly { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(252,202,92,0.06), transparent); }
+  .app-forge { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(252,92,138,0.07), transparent); }
+  .app-astra { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(92,244,252,0.06), transparent); }
+  .app-platemate { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(92,252,168,0.06), transparent); }
+  .app-tended { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(252,138,92,0.07), transparent); }
+  .app-stacks { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(138,92,252,0.08), transparent); }
+  .app-cutlist { --card-glow: radial-gradient(120px 80px at 0% 0%, rgba(252,92,92,0.06), transparent); }
+
+  /* ── DIVIDER ─────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ── SERVICES ────────────────────────────────────── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
+    transition: all 0.25s;
+  }
+  .service-card:hover {
+    border-color: rgba(124,92,252,0.3);
+    background: var(--card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(124,92,252,0.08);
+  }
+  .service-icon {
+    font-size: 28px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .service-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .service-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .service-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .service-bullets li {
+    font-size: 13px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .service-bullets li::before {
+    content: '→';
+    color: var(--accent);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ── PROCESS ─────────────────────────────────────── */
+  .process {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    margin: 0 0 80px;
+  }
+  .process-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 36px;
+    letter-spacing: -0.02em;
+  }
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 32px;
+  }
+  .process-step { position: relative; }
+  .step-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .step-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* ── CTA / CONTACT ───────────────────────────────── */
+  .cta-section {
+    padding: 80px 0 100px;
+    text-align: center;
+  }
+  .cta-box {
+    position: relative;
+    background: linear-gradient(135deg, rgba(124,92,252,0.08) 0%, rgba(196,92,252,0.05) 50%, rgba(92,244,252,0.05) 100%);
+    border: 1px solid rgba(124,92,252,0.2);
+    border-radius: 24px;
+    padding: 80px 40px;
+    overflow: hidden;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(ellipse, rgba(124,92,252,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .cta-title {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .cta-sub {
+    font-size: 17px;
+    color: var(--text2);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto 40px;
+  }
+  .cta-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--border-hover);
+    padding: 16px 32px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    transition: all 0.2s;
+    margin-bottom: 20px;
+  }
+  .cta-email:hover {
+    border-color: rgba(124,92,252,0.4);
+    background: rgba(124,92,252,0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(124,92,252,0.15);
+  }
+  .cta-note {
+    font-size: 13px;
+    color: var(--text3);
+  }
+
+  /* ── FOOTER ──────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+  }
+  footer .inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text3);
+  }
+  .footer-copy a {
+    color: var(--text2);
+    text-decoration: none;
+  }
+  .footer-copy a:hover { color: var(--text); }
+  .footer-badge {
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-badge span {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--green);
+    display: inline-block;
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────────── */
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .stats-row { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+    .process { padding: 32px 24px; }
+    .cta-box { padding: 48px 24px; }
+    h1 { letter-spacing: -0.03em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glows"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="inner">
+    <a href="#" class="logo">Creator<span>Apps</span></a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#contact" class="nav-cta">Hire Me</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="wrapper">
+  <section class="hero">
+    <div class="hero-badge">Solo studio · Fast builds · Creator-first</div>
+    <h1>
+      Web apps built<br>
+      <span class="line2">fast for creators.</span>
+    </h1>
+    <p class="hero-sub">
+      I ship polished, production-ready tools for creators — solo and fast.
+      See what's live, then let's build yours.
+    </p>
+    <div class="hero-actions">
+      <a href="#work" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        See the work
+      </a>
+      <a href="#contact" class="btn btn-ghost">Hire me →</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num">8</div>
+        <div class="stat-label">Apps shipped</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Solo</div>
+        <div class="stat-label">Built by one person</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Fast</div>
+        <div class="stat-label">Days, not months</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Live</div>
+        <div class="stat-label">Real apps, real users</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPS -->
+<div class="divider"></div>
+<div class="wrapper">
+  <section class="section" id="work">
+    <div class="section-head">
+      <div class="section-tag">↳ Portfolio</div>
+      <h2 class="section-title">Apps I've shipped</h2>
+      <p class="section-sub">Every app is production-grade, fast, and built for real creators using real tools.</p>
+    </div>
+
+    <div class="apps-grid">
+
+      <!-- Stellar -->
+      <a href="https://stellar-three-phi.vercel.app" target="_blank" rel="noopener" class="app-card app-stellar">
+        <div class="app-top">
+          <div class="app-icon">✦</div>
+          <div class="app-meta">
+            <div class="app-name">Stellar</div>
+            <div class="app-category">Astrology</div>
+          </div>
+          <div class="app-live-badge">Live</div>
+        </div>
+        <p class="app-desc">Full astrology platform with natal charts, synastry readings, planetary transits, and integrated tarot. The most feature-complete astrology web app in the space.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Natal Charts</span>
+            <span class="tag">Synastry</span>
+            <span class="tag">Tarot</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Streakly -->
+      <div class="app-card app-streakly">
+        <div class="app-top">
+          <div class="app-icon">🔥</div>
+          <div class="app-meta">
+            <div class="app-name">Streakly</div>
+            <div class="app-category">Social Habit Tracker</div>
+          </div>
+        </div>
+        <p class="app-desc">A social layer for habit building. Track streaks with friends, compete on leaderboards, and hold each other accountable — habits are easier when they're shared.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Habits</span>
+            <span class="tag">Social</span>
+            <span class="tag">Gamified</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- FORGE -->
+      <div class="app-card app-forge">
+        <div class="app-top">
+          <div class="app-icon">⚡</div>
+          <div class="app-meta">
+            <div class="app-name">FORGE</div>
+            <div class="app-category">Fitness</div>
+          </div>
+        </div>
+        <p class="app-desc">Training tracker built for serious lifters and athletes. Log workouts, track PRs, and visualize progress. No fluff — just the data that matters to your training.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Training</span>
+            <span class="tag">Progress</span>
+            <span class="tag">PRs</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Astra -->
+      <div class="app-card app-astra">
+        <div class="app-top">
+          <div class="app-icon">🌙</div>
+          <div class="app-meta">
+            <div class="app-name">Astra</div>
+            <div class="app-category">Tarot</div>
+          </div>
+        </div>
+        <p class="app-desc">Beautiful, focused tarot app with immersive card readings, journaling, and spread history. Designed for both beginners and seasoned practitioners.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Tarot</span>
+            <span class="tag">Readings</span>
+            <span class="tag">Journal</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- PlateMate -->
+      <div class="app-card app-platemate">
+        <div class="app-top">
+          <div class="app-icon">🥗</div>
+          <div class="app-meta">
+            <div class="app-name">PlateMate</div>
+            <div class="app-category">Diet Tracker</div>
+          </div>
+        </div>
+        <p class="app-desc">Clean, no-judgment diet tracking for people who want to eat better without obsessing. Log meals fast, see patterns, feel better.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Nutrition</span>
+            <span class="tag">Logging</span>
+            <span class="tag">Insights</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Tended -->
+      <div class="app-card app-tended">
+        <div class="app-top">
+          <div class="app-icon">🌱</div>
+          <div class="app-meta">
+            <div class="app-name">Tended</div>
+            <div class="app-category">Gratitude Journal</div>
+          </div>
+        </div>
+        <p class="app-desc">A gentle gratitude journal with daily prompts, streak tracking, and reflection tools. Designed to feel calm and private — your safe space to slow down.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Journal</span>
+            <span class="tag">Wellness</span>
+            <span class="tag">Streaks</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Stacks -->
+      <div class="app-card app-stacks">
+        <div class="app-top">
+          <div class="app-icon">☑</div>
+          <div class="app-meta">
+            <div class="app-name">Stacks</div>
+            <div class="app-category">Checklists</div>
+          </div>
+        </div>
+        <p class="app-desc">The checklist app that actually sticks. Create, reuse, and share smart checklists for any workflow — from morning routines to complex project launches.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Checklists</span>
+            <span class="tag">Workflows</span>
+            <span class="tag">Reusable</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+      <!-- Cutlist -->
+      <div class="app-card app-cutlist">
+        <div class="app-top">
+          <div class="app-icon">🎬</div>
+          <div class="app-meta">
+            <div class="app-name">Cutlist</div>
+            <div class="app-category">Video Production</div>
+          </div>
+        </div>
+        <p class="app-desc">Track your video production pipeline from idea to upload. Manage shots, scripts, edits, and deliverables in one place built for solo and small-team creators.</p>
+        <div class="app-footer">
+          <div class="app-tech">
+            <span class="tag">Video</span>
+            <span class="tag">Production</span>
+            <span class="tag">Pipeline</span>
+          </div>
+          <span class="app-arrow">→</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- SERVICES -->
+<div class="divider"></div>
+<div class="wrapper">
+  <section class="section" id="services">
+    <div class="section-head">
+      <div class="section-tag">↳ Services</div>
+      <h2 class="section-title">Let's build yours</h2>
+      <p class="section-sub">I take your idea from concept to production — fast, polished, and built to last. No agencies, no bloat.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <span class="service-icon">⚙️</span>
+        <div class="service-title">Custom Web Apps</div>
+        <p class="service-desc">Full-stack web apps designed around your specific audience and workflow. Built fast and shipped live — not a template dressed up.</p>
+        <ul class="service-bullets">
+          <li>Product scoping & design</li>
+          <li>Full-stack development</li>
+          <li>Auth, data, payments</li>
+          <li>Deployed & production-ready</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">🎨</span>
+        <div class="service-title">Branded Creator Tools</div>
+        <p class="service-desc">White-labeled tools and apps for content creators who want to offer something unique to their audience — built to match your brand.</p>
+        <ul class="service-bullets">
+          <li>Community tools & portals</li>
+          <li>Habit trackers, journals, planners</li>
+          <li>Custom calculators & generators</li>
+          <li>Embed-ready or standalone</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">⚡</span>
+        <div class="service-title">Fast Websites</div>
+        <p class="service-desc">Landing pages and promo sites that look like they cost 10× more. Designed to convert, fast to load, and live in days — not weeks.</p>
+        <ul class="service-bullets">
+          <li>Landing pages & microsites</li>
+          <li>Product launch sites</li>
+          <li>Link-in-bio pages</li>
+          <li>SEO-ready from the start</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Process -->
+    <div class="process">
+      <div class="process-title">How it works</div>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="step-num">01 — Scope</div>
+          <div class="step-name">Tell me the idea</div>
+          <p class="step-desc">One email is enough to start. We'll scope the project and agree on what ships in the first version.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-num">02 — Design</div>
+          <div class="step-name">See it first</div>
+          <p class="step-desc">You'll get a design direction before any code is written. No surprises at the end.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-num">03 — Build</div>
+          <div class="step-name">Fast iteration</div>
+          <p class="step-desc">I build fast and share progress often. Most projects go live in days to a couple of weeks.</p>
+        </div>
+        <div class="process-step">
+          <div class="step-num">04 — Ship</div>
+          <div class="step-name">You own it</div>
+          <p class="step-desc">Deployed, live, and yours. Full handoff with docs, and I'm available for follow-on work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA / CONTACT -->
+<div class="divider"></div>
+<div class="wrapper">
+  <section class="cta-section" id="contact">
+    <div class="cta-box">
+      <div class="cta-tag">↳ Get in touch</div>
+      <h2 class="cta-title">Have an app idea?<br>Let's build it.</h2>
+      <p class="cta-sub">Tell me what you're building and I'll get back to you fast. Most projects kick off within a week of first contact.</p>
+      <div>
+        <a href="mailto:hello@creatorapps.app" class="cta-email">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+          hello@creatorapps.app
+        </a>
+      </div>
+      <p class="cta-note">Typically responds within 24 hours · No agencies, just me</p>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <span class="footer-copy">
+      © 2026 <a href="#">CreatorApps</a> · Built solo, shipped fast
+    </span>
+    <span class="footer-badge">
+      <span></span> Apps live on Vercel
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
