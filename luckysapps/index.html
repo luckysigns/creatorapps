@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucky's Apps — Dashboard</title>
+<style>
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  :root {
+    --bg: #060610;
+    --card: #0d0d1e;
+    --card-hover: #111128;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.13);
+    --text: #f0eeff;
+    --text2: #9896b8;
+    --text3: #5e5c7a;
+    --accent: #7c5cfc;
+    --accent2: #c45cfc;
+    --accent3: #5cf4fc;
+    --green: #5cfca8;
+    --yellow: #fcca5c;
+    --red: #fc5c8a;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── CANVAS ─────────────────────────────────────── */
+  #c {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ── GRID ────────────────────────────────────────── */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse 100% 100% at 50% 30%, black 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 30%, black 0%, transparent 100%);
+  }
+
+  /* ── NOISE ───────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── BG GLOW ─────────────────────────────────────── */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-glow::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    top: -200px; left: -150px;
+    background: radial-gradient(circle, rgba(124,92,252,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .bg-glow::after {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    bottom: -100px; right: -150px;
+    background: radial-gradient(circle, rgba(92,244,252,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* ── LAYOUT ──────────────────────────────────────── */
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── HEADER ──────────────────────────────────────── */
+  .header {
+    padding: 48px 0 40px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .header-left {}
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-eyebrow::before {
+    content: '>';
+    color: var(--accent3);
+    opacity: 0.6;
+  }
+  .header-title {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #fff 30%, var(--text2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-title span {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .sys-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: rgba(92,252,168,0.07);
+    border: 1px solid rgba(92,252,168,0.18);
+    padding: 4px 12px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sys-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .sys-time {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+    50% { opacity: 0.5; box-shadow: 0 0 16px var(--green); }
+  }
+
+  /* ── STATS STRIP ─────────────────────────────────── */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+  .stat-card:hover { border-color: rgba(124,92,252,0.2); }
+  .stat-val {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--text2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-lbl {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--mono);
+  }
+
+  /* ── SECTION LABEL ───────────────────────────────── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── APP GRID ────────────────────────────────────── */
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .app-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    position: relative;
+    --mx: 50%;
+    --my: 50%;
+  }
+  .app-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(220px circle at var(--mx) var(--my), rgba(124,92,252,0.11), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .app-card:hover {
+    border-color: rgba(124,92,252,0.22);
+    background: var(--card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .app-card:hover::after { opacity: 1; }
+
+  .app-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .app-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .app-info { flex: 1; min-width: 0; }
+  .app-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .app-cat {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+  }
+  .app-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .status-live {
+    background: rgba(92,252,168,0.08);
+    color: var(--green);
+    border: 1px solid rgba(92,252,168,0.2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .status-live::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .status-parked {
+    background: rgba(252,202,92,0.07);
+    color: var(--yellow);
+    border: 1px solid rgba(252,202,92,0.16);
+  }
+
+  .app-links {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    padding: 5px 12px;
+    border-radius: 7px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--text3);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.18s;
+    cursor: pointer;
+  }
+  .link-btn:hover {
+    border-color: rgba(124,92,252,0.35);
+    color: var(--text);
+    background: rgba(124,92,252,0.08);
+  }
+  .link-btn.app-link:hover {
+    border-color: rgba(92,252,168,0.35);
+    color: var(--green);
+    background: rgba(92,252,168,0.06);
+  }
+  .link-btn svg { flex-shrink: 0; }
+
+  /* icon tints */
+  .app-stellar   .app-icon { background: rgba(124,92,252,0.14); }
+  .app-streakly  .app-icon { background: rgba(252,202,92,0.12); }
+  .app-forge     .app-icon { background: rgba(252,92,138,0.12); }
+  .app-astra     .app-icon { background: rgba(92,244,252,0.10); }
+  .app-stacks    .app-icon { background: rgba(138,92,252,0.14); }
+  .app-cutlist   .app-icon { background: rgba(252,92,92,0.10); }
+  .app-gratitude .app-icon { background: rgba(252,138,92,0.12); }
+  .app-forma     .app-icon { background: rgba(92,252,200,0.10); }
+  .app-theweek   .app-icon { background: rgba(252,220,92,0.10); }
+  .app-platemate .app-icon { background: rgba(92,252,168,0.10); }
+  .app-meaninglab .app-icon { background: rgba(196,92,252,0.12); }
+
+  /* ── TERMINAL ────────────────────────────────────── */
+  .terminal-wrap {
+    margin-bottom: 40px;
+  }
+  .terminal {
+    background: rgba(6,6,16,0.95);
+    border: 1px solid rgba(124,92,252,0.16);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(124,92,252,0.10), 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .t-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    background: rgba(255,255,255,0.025);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-dot.r { background: #ff5f57; }
+  .t-dot.y { background: #febc2e; }
+  .t-dot.g { background: #28c840; }
+  .t-title {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-left: auto;
+    letter-spacing: 0.04em;
+  }
+  .t-body {
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.95;
+  }
+  .t-line { display: flex; gap: 10px; }
+  .t-p  { color: var(--accent); flex-shrink: 0; }
+  .t-c  { color: var(--text2); }
+  .t-ok { color: var(--green); }
+  .t-dm { color: var(--text3); }
+  .t-cy { color: var(--accent3); }
+
+  /* ── SCROLL REVEAL ───────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ── FOOTER ──────────────────────────────────────── */
+  .foot {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .foot-copy {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    letter-spacing: 0.03em;
+  }
+  .foot-copy a { color: var(--text2); text-decoration: none; }
+  .foot-link {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+  }
+  .foot-link:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; align-items: flex-start; }
+    .header-right { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div class="grid-overlay"></div>
+<div class="bg-glow"></div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">personal_dashboard · v1.0</div>
+      <h1 class="header-title">Lucky's <span>Apps</span></h1>
+    </div>
+    <div class="header-right">
+      <div class="sys-badge">all systems online</div>
+      <div class="sys-time" id="sys-time">—</div>
+    </div>
+  </header>
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip reveal">
+    <div class="stat-card">
+      <div class="stat-val" data-count="10">10</div>
+      <div class="stat-lbl">Total_Apps</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" data-count="9">9</div>
+      <div class="stat-lbl">On_GitHub</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" data-count="9">9</div>
+      <div class="stat-lbl">On_Vercel</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">Solo</div>
+      <div class="stat-lbl">Builder</div>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div class="terminal-wrap reveal">
+    <div class="terminal">
+      <div class="t-bar">
+        <span class="t-dot r"></span>
+        <span class="t-dot y"></span>
+        <span class="t-dot g"></span>
+        <span class="t-title">creatorapps — sys_log</span>
+      </div>
+      <div class="t-body" id="t-body"></div>
+    </div>
+  </div>
+
+  <!-- APPS -->
+  <div class="section-label">// apps · live</div>
+  <div class="apps-grid" id="live-grid">
+
+    <div class="app-card app-stellar reveal">
+      <div class="app-row">
+        <div class="app-icon">✦</div>
+        <div class="app-info">
+          <div class="app-name">Stellar</div>
+          <div class="app-cat">Astrology</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/stellar" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://stellar-three-phi.vercel.app" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open App
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-forge reveal">
+      <div class="app-row">
+        <div class="app-icon">⚡</div>
+        <div class="app-info">
+          <div class="app-name">FORGE</div>
+          <div class="app-cat">Fitness</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/Forge" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-astra reveal">
+      <div class="app-row">
+        <div class="app-icon">🌙</div>
+        <div class="app-info">
+          <div class="app-name">Astra</div>
+          <div class="app-cat">Tarot</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/Stella-tarot" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-streakly reveal">
+      <div class="app-row">
+        <div class="app-icon">🔥</div>
+        <div class="app-info">
+          <div class="app-name">Streakly</div>
+          <div class="app-cat">Habit Tracker</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/Streakly" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-stacks reveal">
+      <div class="app-row">
+        <div class="app-icon">☑</div>
+        <div class="app-info">
+          <div class="app-name">Stacks</div>
+          <div class="app-cat">Checklists</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/stacks" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-cutlist reveal">
+      <div class="app-row">
+        <div class="app-icon">🎬</div>
+        <div class="app-info">
+          <div class="app-name">Cutlist</div>
+          <div class="app-cat">Video Production</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/cutlist" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-gratitude reveal">
+      <div class="app-row">
+        <div class="app-icon">🌱</div>
+        <div class="app-info">
+          <div class="app-name">Gratitude</div>
+          <div class="app-cat">Wellness Journal</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/gratefull" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-forma reveal">
+      <div class="app-row">
+        <div class="app-icon">📐</div>
+        <div class="app-info">
+          <div class="app-name">Forma</div>
+          <div class="app-cat">Templates</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/Forma" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+    <div class="app-card app-theweek reveal">
+      <div class="app-row">
+        <div class="app-icon">📅</div>
+        <div class="app-info">
+          <div class="app-name">TheWeek</div>
+          <div class="app-cat">Weekly Planner</div>
+        </div>
+        <span class="app-status status-live">Live</span>
+      </div>
+      <div class="app-links">
+        <a href="https://github.com/luckysigns/theweek" target="_blank" class="link-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://vercel.com/luckysigns" target="_blank" class="link-btn app-link">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Vercel
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PARKED -->
+  <div class="section-label">// apps · parked</div>
+  <div class="apps-grid">
+
+    <div class="app-card app-platemate reveal">
+      <div class="app-row">
+        <div class="app-icon">🥗</div>
+        <div class="app-info">
+          <div class="app-name">PlateMate</div>
+          <div class="app-cat">Diet Tracker</div>
+        </div>
+        <span class="app-status status-parked">Parked</span>
+      </div>
+      <div class="app-links">
+        <span class="link-btn" style="opacity:0.4;cursor:default">No repo yet</span>
+      </div>
+    </div>
+
+    <div class="app-card app-meaninglab reveal">
+      <div class="app-row">
+        <div class="app-icon">🧠</div>
+        <div class="app-info">
+          <div class="app-name">MeaningLab</div>
+          <div class="app-cat">Self-Discovery</div>
+        </div>
+        <span class="app-status status-parked">Parked</span>
+      </div>
+      <div class="app-links">
+        <span class="link-btn" style="opacity:0.4;cursor:default">No repo yet</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="foot">
+    <span class="foot-copy">© 2026 <a href="/">creatorapps.app</a> · personal_dashboard</span>
+    <a href="/" class="foot-link">
+      ← back to site
+    </a>
+  </footer>
+
+</div>
+
+<script>
+/* ── PARTICLE CANVAS ──────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  let W, H, pts = [];
+  const N = 60;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  class P {
+    constructor() { this.init(); }
+    init() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.22;
+      this.vy = (Math.random() - 0.5) * 0.22;
+      this.r  = Math.random() * 1.1 + 0.4;
+      this.cyan = Math.random() > 0.65;
+    }
+    tick() {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0 || this.x > W) this.vx *= -1;
+      if (this.y < 0 || this.y > H) this.vy *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.cyan ? 'rgba(92,244,252,0.65)' : 'rgba(124,92,252,0.65)';
+      ctx.fill();
+    }
+  }
+
+  function connect() {
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < 130) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(124,92,252,${0.15*(1-d/130)})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(p => { p.tick(); p.draw(); });
+    connect();
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  pts = Array.from({ length: N }, () => new P());
+  frame();
+  window.addEventListener('resize', () => { resize(); pts.forEach(p => p.init()); });
+})();
+
+/* ── CLOCK ────────────────────────────────────────── */
+(function() {
+  const el = document.getElementById('sys-time');
+  function tick() {
+    const now = new Date();
+    el.textContent = now.toLocaleString('en-AU', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      day: '2-digit', month: 'short', year: 'numeric', hour12: false
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ── TERMINAL ─────────────────────────────────────── */
+(function() {
+  const body = document.getElementById('t-body');
+  const lines = [
+    { t: 'cmd', v: 'git status --all-repos' },
+    { t: 'ok',  v: '✓ stellar      → main · up to date' },
+    { t: 'ok',  v: '✓ forge        → main · up to date' },
+    { t: 'ok',  v: '✓ astra        → main · up to date' },
+    { t: 'ok',  v: '✓ streakly     → main · up to date' },
+    { t: 'ok',  v: '✓ stacks       → main · up to date' },
+    { t: 'ok',  v: '✓ cutlist      → main · up to date' },
+    { t: 'ok',  v: '✓ gratitude    → main · up to date' },
+    { t: 'ok',  v: '✓ forma        → main · up to date' },
+    { t: 'ok',  v: '✓ theweek      → main · up to date' },
+    { t: 'dm',  v: '— 9/9 repos synced' },
+    { t: 'cy',  v: '→ workspace healthy · all good' },
+  ];
+
+  let i = 0;
+  function add() {
+    if (i >= lines.length) return;
+    const l   = lines[i++];
+    const div = document.createElement('div');
+    div.className = 't-line';
+    if (l.t === 'cmd') div.innerHTML = `<span class="t-p">$</span><span class="t-c"> ${l.v}</span>`;
+    else if (l.t === 'ok') div.innerHTML = `<span class="t-ok">  ${l.v}</span>`;
+    else if (l.t === 'dm') div.innerHTML = `<span class="t-dm">  ${l.v}</span>`;
+    else if (l.t === 'cy') div.innerHTML = `<span class="t-cy">  ${l.v}</span>`;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    if (i < lines.length) setTimeout(add, l.t === 'cmd' ? 600 : 180);
+  }
+  setTimeout(add, 600);
+})();
+
+/* ── STAT COUNTERS ────────────────────────────────── */
+(function() {
+  const els = document.querySelectorAll('.stat-val[data-count]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el  = e.target;
+      const tgt = parseInt(el.dataset.count, 10);
+      const t0  = performance.now();
+      const dur = 1200;
+      function tick(now) {
+        const p  = Math.min((now - t0) / dur, 1);
+        const ep = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(ep * tgt);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = tgt;
+      }
+      requestAnimationFrame(tick);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.6 });
+  els.forEach(el => obs.observe(el));
+})();
+
+/* ── CARD MOUSE SPOTLIGHT ────────────────────────── */
+(function() {
+  document.querySelectorAll('.app-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
+    });
+  });
+})();
+
+/* ── SCROLL REVEAL ───────────────────────────────── */
+(function() {
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((entry, idx) => {
+      if (!entry.isIntersecting) return;
+      const el  = entry.target;
+      const sib = Array.from(el.parentElement.children).filter(c => c.classList.contains('reveal'));
+      el.style.transitionDelay = (sib.indexOf(el) * 0.06) + 's';
+      el.classList.add('in');
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.08 });
+  els.forEach(el => obs.observe(el));
+})();
+</script>
+</body>
+</html>
