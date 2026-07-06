@@ -284,6 +284,25 @@
     --mx: 50%;
     --my: 50%;
   }
+  .card-stretched-link {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+  }
+  .app-row {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .app-links {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .app-links a, .app-links span {
+    pointer-events: auto;
+  }
   .app-card::after {
     content: '';
     position: absolute;
@@ -419,48 +438,6 @@
   .app-platemate .app-icon { background: rgba(92,252,168,0.10); }
   .app-meaninglab .app-icon { background: rgba(196,92,252,0.12); }
 
-  /* ── TERMINAL ────────────────────────────────────── */
-  .terminal-wrap {
-    margin-bottom: 40px;
-  }
-  .terminal {
-    background: rgba(6,6,16,0.95);
-    border: 1px solid rgba(124,92,252,0.16);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 50px rgba(124,92,252,0.10), 0 20px 50px rgba(0,0,0,0.4);
-  }
-  .t-bar {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 9px 14px;
-    background: rgba(255,255,255,0.025);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .t-dot.r { background: #ff5f57; }
-  .t-dot.y { background: #febc2e; }
-  .t-dot.g { background: #28c840; }
-  .t-title {
-    font-size: 11px;
-    color: var(--text3);
-    font-family: var(--mono);
-    margin-left: auto;
-    letter-spacing: 0.04em;
-  }
-  .t-body {
-    padding: 16px 20px;
-    font-family: var(--mono);
-    font-size: 12px;
-    line-height: 1.95;
-  }
-  .t-line { display: flex; gap: 10px; }
-  .t-p  { color: var(--accent); flex-shrink: 0; }
-  .t-c  { color: var(--text2); }
-  .t-ok { color: var(--green); }
-  .t-dm { color: var(--text3); }
-  .t-cy { color: var(--accent3); }
 
   /* ── SCROLL REVEAL ───────────────────────────────── */
   .reveal {
@@ -546,24 +523,11 @@
     </div>
   </div>
 
-  <!-- TERMINAL -->
-  <div class="terminal-wrap reveal">
-    <div class="terminal">
-      <div class="t-bar">
-        <span class="t-dot r"></span>
-        <span class="t-dot y"></span>
-        <span class="t-dot g"></span>
-        <span class="t-title">creatorapps — sys_log</span>
-      </div>
-      <div class="t-body" id="t-body"></div>
-    </div>
-  </div>
-
   <!-- APPS -->
   <div class="section-label">// apps · live</div>
   <div class="apps-grid" id="live-grid">
 
-    <div class="app-card app-stellar reveal">
+    <div class="app-card app-stellar">
       <div class="app-row">
         <div class="app-icon">✦</div>
         <div class="app-info">
@@ -584,7 +548,7 @@
       </div>
     </div>
 
-    <div class="app-card app-forge reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">⚡</div>
         <div class="app-info">
@@ -605,7 +569,7 @@
       </div>
     </div>
 
-    <div class="app-card app-astra reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">🌙</div>
         <div class="app-info">
@@ -626,7 +590,7 @@
       </div>
     </div>
 
-    <div class="app-card app-streakly reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">🔥</div>
         <div class="app-info">
@@ -647,7 +611,7 @@
       </div>
     </div>
 
-    <div class="app-card app-stacks reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">☑</div>
         <div class="app-info">
@@ -668,7 +632,7 @@
       </div>
     </div>
 
-    <div class="app-card app-cutlist reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">🎬</div>
         <div class="app-info">
@@ -689,7 +653,7 @@
       </div>
     </div>
 
-    <div class="app-card app-gratitude reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">🌱</div>
         <div class="app-info">
@@ -710,7 +674,7 @@
       </div>
     </div>
 
-    <div class="app-card app-forma reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">📐</div>
         <div class="app-info">
@@ -728,7 +692,7 @@
       </div>
     </div>
 
-    <div class="app-card app-theweek reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">📅</div>
         <div class="app-info">
@@ -755,7 +719,7 @@
   <div class="section-label">// apps · parked</div>
   <div class="apps-grid">
 
-    <div class="app-card app-platemate reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">🥗</div>
         <div class="app-info">
@@ -769,7 +733,7 @@
       </div>
     </div>
 
-    <div class="app-card app-meaninglab reveal">
+    <div class="app-card \1">
       <div class="app-row">
         <div class="app-icon">🧠</div>
         <div class="app-info">
@@ -875,40 +839,6 @@
   setInterval(tick, 1000);
 })();
 
-/* ── TERMINAL ─────────────────────────────────────── */
-(function() {
-  const body = document.getElementById('t-body');
-  const lines = [
-    { t: 'cmd', v: 'git status --all-repos' },
-    { t: 'ok',  v: '✓ stellar      → main · up to date' },
-    { t: 'ok',  v: '✓ forge        → main · up to date' },
-    { t: 'ok',  v: '✓ astra        → main · up to date' },
-    { t: 'ok',  v: '✓ streakly     → main · up to date' },
-    { t: 'ok',  v: '✓ stacks       → main · up to date' },
-    { t: 'ok',  v: '✓ cutlist      → main · up to date' },
-    { t: 'ok',  v: '✓ gratitude    → main · up to date' },
-    { t: 'ok',  v: '✓ forma        → main · up to date' },
-    { t: 'ok',  v: '✓ theweek      → main · up to date' },
-    { t: 'dm',  v: '— 9/9 repos synced' },
-    { t: 'cy',  v: '→ workspace healthy · all good' },
-  ];
-
-  let i = 0;
-  function add() {
-    if (i >= lines.length) return;
-    const l   = lines[i++];
-    const div = document.createElement('div');
-    div.className = 't-line';
-    if (l.t === 'cmd') div.innerHTML = `<span class="t-p">$</span><span class="t-c"> ${l.v}</span>`;
-    else if (l.t === 'ok') div.innerHTML = `<span class="t-ok">  ${l.v}</span>`;
-    else if (l.t === 'dm') div.innerHTML = `<span class="t-dm">  ${l.v}</span>`;
-    else if (l.t === 'cy') div.innerHTML = `<span class="t-cy">  ${l.v}</span>`;
-    body.appendChild(div);
-    body.scrollTop = body.scrollHeight;
-    if (i < lines.length) setTimeout(add, l.t === 'cmd' ? 600 : 180);
-  }
-  setTimeout(add, 600);
-})();
 
 /* ── STAT COUNTERS ────────────────────────────────── */
 (function() {
@@ -934,7 +864,7 @@
   els.forEach(el => obs.observe(el));
 })();
 
-/* ── CARD MOUSE SPOTLIGHT ────────────────────────── */
+/* ── CARD MOUSE SPOTLIGHT + STRETCHED LINK ────────── */
 (function() {
   document.querySelectorAll('.app-card').forEach(card => {
     card.addEventListener('mousemove', e => {
@@ -942,6 +872,16 @@
       card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
       card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
     });
+    const appLink = card.querySelector('.app-link') || card.querySelector('.link-btn[href^="http"]');
+    if (appLink) {
+      const a = document.createElement('a');
+      a.href = appLink.href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'card-stretched-link';
+      a.setAttribute('aria-label', card.querySelector('.app-name')?.textContent || 'Open app');
+      card.prepend(a);
+    }
   });
 })();
 
