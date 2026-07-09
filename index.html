@@ -158,6 +158,19 @@ a.acard:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .cta .doodle{position:absolute;font-family:'Caveat',cursive;color:var(--marker);font-weight:600}
 .cta h2{font-family:'Darker Grotesque',sans-serif;font-weight:800;font-size:clamp(36px,5vw,62px);line-height:.96;letter-spacing:-.02em;margin-bottom:14px}
 .cta p{font-size:17px;color:var(--ink-soft);margin-bottom:28px}
+.cta-form{max-width:440px;margin:0 auto;text-align:left;display:flex;flex-direction:column;gap:14px}
+.cta-form .field{display:flex;flex-direction:column;gap:6px}
+.cta-form label{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.cta-form input,.cta-form textarea{font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:12px;padding:13px 15px;width:100%}
+.cta-form input:focus,.cta-form textarea:focus{outline:2px solid var(--accent);outline-offset:2px}
+.cta-form textarea{min-height:96px;resize:vertical}
+.form-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink);box-shadow:none}
+.btn.ghost:hover{background:var(--ink);color:var(--paper-2);box-shadow:none}
+.form-status{font-family:'Space Mono',monospace;font-size:13.5px;min-height:20px;color:var(--ink-soft)}
+.form-status.ok{color:var(--live)}
+.form-status.err{color:var(--marker)}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden}
 
 footer{padding:30px 0 60px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;color:var(--ink-soft);font-family:'Space Mono',monospace;font-size:13px}
 footer .logo{font-size:22px}
@@ -307,7 +320,29 @@ footer .logo{font-size:22px}
     <div class="doodle" style="top:24px;left:8%;transform:rotate(-8deg);font-size:22px">got an idea? &darr;</div>
     <h2>Let&rsquo;s ship the thing<br>in your head.</h2>
     <p>Tell us the idea. We&rsquo;ll build it fast and hand you the live app.</p>
-    <a href="mailto:hello@creatorapps.app" class="btn">Start a project <span aria-hidden="true">&rarr;</span></a>
+    <form class="cta-form" id="projectForm" action="https://api.web3forms.com/submit" method="POST">
+      <input type="hidden" name="access_key" value="8d04ebdf-9112-4712-b824-adb5b7fe885a">
+      <input type="hidden" name="subject" value="New project enquiry from CreatorApps">
+      <input type="hidden" name="from_name" value="CreatorApps site">
+      <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+      <div class="field">
+        <label for="pf-name">Name</label>
+        <input id="pf-name" type="text" name="name" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="pf-email">Email</label>
+        <input id="pf-email" type="email" name="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="pf-idea">Your idea</label>
+        <textarea id="pf-idea" name="message" required placeholder="Tell us what you want to build&hellip;"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn">Start a project <span aria-hidden="true">&rarr;</span></button>
+        <a href="https://calendly.com/revisualmedia/15-minute-meeting" target="_blank" rel="noopener" class="btn ghost">Book a call</a>
+      </div>
+      <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+    </form>
   </section>
 
   <footer>
@@ -365,6 +400,35 @@ const rev=new IntersectionObserver((entries)=>{
 document.querySelectorAll('.reveal,.farrow').forEach(el=>{
   if(reduce){el.classList.add('in');}else{rev.observe(el);}
 });
+
+// project form -> Web3Forms (AJAX, no redirect)
+const pform=document.getElementById('projectForm');
+const pstatus=document.getElementById('formStatus');
+if(pform){
+  pform.addEventListener('submit',async(e)=>{
+    e.preventDefault();
+    const btn=pform.querySelector('button[type=submit]');
+    pstatus.className='form-status';pstatus.textContent='Sending…';
+    if(btn){btn.disabled=true;}
+    try{
+      const res=await fetch(pform.action,{method:'POST',headers:{'Accept':'application/json'},body:new FormData(pform)});
+      const data=await res.json();
+      if(res.ok){
+        pstatus.className='form-status ok';
+        pstatus.textContent='Got it — we’ll be in touch soon.';
+        pform.reset();
+      }else{
+        pstatus.className='form-status err';
+        pstatus.textContent=(data&&data.message)?data.message:'Something went wrong. Email hello@creatorapps.app.';
+      }
+    }catch(err){
+      pstatus.className='form-status err';
+      pstatus.textContent='Network error. Email hello@creatorapps.app.';
+    }finally{
+      if(btn){btn.disabled=false;}
+    }
+  });
+}
 </script>
 </body>
 </html>
